@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e1a">
+<title>VaultPro</title>
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg2: #111827;
+  --bg3: #1a2236;
+  --card: #141d2e;
+  --border: rgba(255,255,255,0.08);
+  --primary: #3b82f6;
+  --primary-dim: rgba(59,130,246,0.15);
+  --purple: #8b5cf6;
+  --purple-dim: rgba(139,92,246,0.15);
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #475569;
+  --red: #ef4444;
+  --green: #22c55e;
+  --yellow: #eab308;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; }
+#app { display: flex; flex-direction: column; height: 100%; }
+
+/* HEADER */
+.header {
+  background: rgba(10,14,26,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: calc(var(--safe-top) + 12px) 16px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.logo { display: flex; align-items: center; gap: 8px; }
+.logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary), var(--purple)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+.logo-text span { color: var(--primary); }
+.header-btns { display: flex; gap: 8px; }
+.btn { border: none; cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.15s; display: flex; align-items: center; gap: 5px; }
+.btn-gen { background: var(--purple-dim); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.25); padding: 7px 12px; border-radius: var(--radius-sm); font-size: 13px; }
+.btn-gen:active { opacity: 0.7; }
+.btn-add { background: var(--primary); color: white; padding: 7px 12px; border-radius: var(--radius-sm); font-size: 13px; }
+.btn-add:active { opacity: 0.8; }
+
+/* SEARCH + FILTER */
+.controls { padding: 12px 16px 0; flex-shrink: 0; }
+.search-wrap { position: relative; }
+.search-wrap .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 16px; }
+.search-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius-sm); padding: 10px 12px 10px 38px; font-size: 14px; font-family: inherit; outline: none; }
+.search-input:focus { border-color: var(--primary); }
+.search-input::placeholder { color: var(--text3); }
+.cats { display: flex; gap: 6px; overflow-x: auto; padding: 10px 0 2px; scrollbar-width: none; }
+.cats::-webkit-scrollbar { display: none; }
+.cat-btn { flex-shrink: 0; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); font-family: inherit; transition: all 0.15s; }
+.cat-btn.active { background: var(--primary-dim); color: var(--primary); border-color: rgba(59,130,246,0.3); }
+.cat-btn:active { opacity: 0.7; }
+
+/* LIST */
+.list-wrap { flex: 1; overflow-y: auto; padding: 12px 16px; padding-bottom: calc(var(--safe-bot) + 80px); }
+.list-wrap::-webkit-scrollbar { display: none; }
+
+/* EMPTY */
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 12px; text-align: center; }
+.empty-icon { font-size: 64px; opacity: 0.2; }
+.empty h3 { font-size: 18px; color: var(--text2); }
+.empty p { font-size: 13px; color: var(--text3); max-width: 240px; line-height: 1.5; }
+.empty .btn-add { padding: 10px 24px; border-radius: var(--radius-sm); font-size: 14px; margin-top: 8px; }
+
+/* CARD */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.card-icon-wrap { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.card-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: var(--text2); text-transform: uppercase; flex-shrink: 0; }
+.card-info { min-width: 0; }
+.card-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+.card-website { font-size: 11px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+.badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; border: 1px solid; flex-shrink: 0; }
+.badge-gmail { background: rgba(239,68,68,0.1); color: #fca5a5; border-color: rgba(239,68,68,0.2); }
+.badge-crypto { background: rgba(234,179,8,0.1); color: #fde68a; border-color: rgba(234,179,8,0.2); }
+.badge-games { background: rgba(139,92,246,0.1); color: #c4b5fd; border-color: rgba(139,92,246,0.2); }
+.badge-banking { background: rgba(34,197,94,0.1); color: #86efac; border-color: rgba(34,197,94,0.2); }
+.badge-social { background: rgba(59,130,246,0.1); color: #93c5fd; border-color: rgba(59,130,246,0.2); }
+.badge-other { background: rgba(148,163,184,0.1); color: var(--text2); border-color: rgba(148,163,184,0.2); }
+.card-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.icon-btn { width: 30px; height: 30px; border-radius: 6px; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; color: var(--text3); transition: all 0.15s; }
+.icon-btn:active { background: var(--bg3); color: var(--text); }
+.card-field { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: var(--radius-sm); padding: 8px 10px; margin-bottom: 6px; }
+.field-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+.field-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.field-val { font-size: 13px; font-family: monospace; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.field-actions { display: flex; gap: 2px; flex-shrink: 0; }
+.field-btn { width: 26px; height: 26px; border: none; background: transparent; cursor: pointer; font-size: 13px; color: var(--text3); display: flex; align-items: center; justify-content: center; border-radius: 5px; }
+.field-btn:active { background: var(--bg3); color: var(--text); }
+.card-notes { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.4; border-top: 1px solid var(--border); padding-top: 6px; }
+.card-date { font-size: 10px; color: var(--text3); margin-top: 4px; }
+
+/* FAB */
+.fab { position: fixed; bottom: calc(var(--safe-bot) + 20px); right: 20px; width: 52px; height: 52px; border-radius: 50%; background: var(--primary); border: none; color: white; font-size: 24px; cursor: pointer; box-shadow: 0 4px 20px rgba(59,130,246,0.4); display: flex; align-items: center; justify-content: center; transition: all 0.15s; z-index: 50; }
+.fab:active { transform: scale(0.93); }
+
+/* BOTTOM BAR */
+.bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,14,26,0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 8px 16px calc(var(--safe-bot) + 8px); display: flex; gap: 8px; z-index: 40; }
+.btn-export { flex: 1; background: var(--bg3); color: var(--text2); border: 1px solid var(--border); padding: 9px; border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.btn-export:active { opacity: 0.7; }
+
+/* OVERLAY / MODAL */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: flex-end; }
+.overlay.open { display: flex; }
+.modal { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius) var(--radius) 0 0; width: 100%; max-height: 90vh; overflow-y: auto; padding: 20px 16px calc(var(--safe-bot) + 20px); animation: slideUp 0.25s ease; }
+.modal::-webkit-scrollbar { display: none; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 12px; color: var(--text2); margin-bottom: 5px; display: block; font-weight: 500; }
+.form-label .hint { color: var(--primary); margin-left: 4px; font-size: 11px; font-weight: 400; }
+.form-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 14px; font-family: inherit; outline: none; }
+.form-input:focus { border-color: var(--primary); }
+.form-input::placeholder { color: var(--text3); }
+.pw-wrap { position: relative; }
+.pw-wrap .form-input { padding-right: 40px; }
+.pw-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 16px; color: var(--text3); padding: 4px; }
+.cat-select { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 14px; font-family: inherit; outline: none; appearance: none; -webkit-appearance: none; }
+.cat-select:focus { border-color: var(--primary); }
+.form-row { display: flex; gap: 8px; }
+.form-row .form-group { flex: 1; }
+.modal-footer { display: flex; gap: 8px; margin-top: 20px; }
+.btn-cancel { flex: 1; background: var(--bg3); color: var(--text2); border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-sm); font-size: 15px; font-family: inherit; cursor: pointer; }
+.btn-save { flex: 2; background: var(--primary); color: white; border: none; padding: 12px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; }
+.btn-save:active { opacity: 0.85; }
+.btn-cancel:active { opacity: 0.7; }
+.btn-danger { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.2); flex: 1; padding: 12px; border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; cursor: pointer; }
+.btn-danger:active { opacity: 0.7; }
+.error { color: var(--red); font-size: 11px; margin-top: 3px; }
+
+/* GENERATOR */
+.provider-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.provider-btn { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; font-family: inherit; cursor: pointer; transition: all 0.15s; }
+.provider-btn.active { background: var(--purple-dim); color: #c4b5fd; border-color: rgba(139,92,246,0.35); }
+.provider-btn:active { opacity: 0.7; }
+.gen-result { background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px; }
+.gen-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.gen-row { display: flex; align-items: center; gap: 6px; }
+.gen-val { flex: 1; font-size: 13px; font-family: monospace; color: var(--text); word-break: break-all; }
+.gen-btn { width: 32px; height: 32px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.gen-btn:active { opacity: 0.7; }
+.pw-opts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+.pw-opt-btn { background: var(--bg3); border: 1px solid var(--border); color: var(--text3); padding: 8px 4px; border-radius: var(--radius-sm); font-size: 11px; font-family: inherit; cursor: pointer; text-align: center; transition: all 0.15s; }
+.pw-opt-btn.active { background: var(--primary-dim); color: var(--primary); border-color: rgba(59,130,246,0.3); }
+.pw-opt-btn:active { opacity: 0.7; }
+.slider-wrap { margin-bottom: 12px; }
+.slider-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.slider-labels span:nth-child(2) { color: var(--text); font-weight: 600; }
+input[type=range] { width: 100%; accent-color: var(--primary); }
+.strength-bar { display: flex; gap: 3px; margin-top: 8px; }
+.strength-seg { flex: 1; height: 4px; border-radius: 2px; background: var(--bg3); transition: background 0.2s; }
+.strength-label { font-size: 11px; color: var(--text3); margin-top: 4px; display: flex; justify-content: space-between; align-items: center; }
+.strength-label .s-badge { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; }
+
+/* TOAST */
+.toast { position: fixed; top: calc(var(--safe-top) + 60px); left: 50%; transform: translateX(-50%) translateY(-20px); background: #1e293b; border: 1px solid var(--border); color: var(--text); padding: 9px 18px; border-radius: 20px; font-size: 13px; font-weight: 500; z-index: 999; opacity: 0; pointer-events: none; transition: all 0.25s; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* CONFIRM */
+.confirm-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; width: calc(100% - 48px); max-width: 320px; margin: auto; animation: scaleIn 0.2s ease; text-align: center; }
+.overlay.center { align-items: center; justify-content: center; }
+@keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.confirm-box h3 { font-size: 16px; margin-bottom: 8px; }
+.confirm-box p { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; }
+.confirm-btns { display: flex; gap: 10px; }
+.confirm-btns button { flex: 1; padding: 10px; border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; cursor: pointer; font-weight: 500; }
+.confirm-no { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); }
+.confirm-yes { background: var(--red); border: none; color: white; }
+.confirm-btns button:active { opacity: 0.75; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🔐</div>
+      <div class="logo-text">Vault<span>Pro</span></div>
+    </div>
+    <div class="header-btns">
+      <button class="btn btn-gen" onclick="openGen()">🪄 Generator</button>
+      <button class="btn btn-add" onclick="openForm()">＋ Add</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <span class="icon">🔍</span>
+      <input class="search-input" type="search" id="searchInput" placeholder="Search by name, username..." oninput="renderList()">
+    </div>
+    <div class="cats" id="catTabs"></div>
+  </div>
+
+  <div class="list-wrap" id="listWrap"></div>
+
+  <div class="bottom-bar">
+    <button class="btn-export" onclick="exportTxt()">📄 Download TXT</button>
+    <button class="btn-export" onclick="exportPrint()">🖨️ Print / PDF</button>
+  </div>
+</div>
+
+<!-- ADD/EDIT FORM MODAL -->
+<div class="overlay" id="formOverlay" onclick="overlayClick(event,'formOverlay')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="formTitle">🔑 New Credential</div>
+    <form id="credForm" onsubmit="saveForm(event)">
+      <div class="form-group">
+        <label class="form-label">Entry Name <span class="hint">(apni marzi ka naam)</span></label>
+        <input class="form-input" id="fName" placeholder="e.g. Mera Gmail, Binance Main" required>
+        <div class="error" id="errName"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Website / App</label>
+        <input class="form-input" id="fWebsite" placeholder="e.g. gmail.com, binance.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Username / Email</label>
+        <input class="form-input" id="fUser" placeholder="name@example.com" required>
+        <div class="error" id="errUser"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" id="fPw" type="password" placeholder="••••••••" required>
+          <button type="button" class="pw-toggle" onclick="togglePw('fPw',this)">👁️</button>
+        </div>
+        <div class="error" id="errPw"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="cat-select" id="fCat">
+          <option value="Gmail">Gmail</option>
+          <option value="Crypto">Crypto</option>
+          <option value="Games">Games</option>
+          <option value="Social Media">Social Media</option>
+          <option value="Banking">Banking</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes (Optional)</label>
+        <input class="form-input" id="fNotes" placeholder="Recovery codes, hints...">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeForm()">Cancel</button>
+        <button type="submit" class="btn-save" id="saveBtn">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- GENERATOR MODAL -->
+<div class="overlay" id="genOverlay" onclick="overlayClick(event,'genOverlay')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🪄 Credential Generator</div>
+
+    <div class="form-group">
+      <label class="form-label">Email Provider</label>
+      <div class="provider-grid" id="providerGrid"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Username Style</label>
+      <select class="cat-select" id="genStyle" onchange="genAll()">
+        <option value="words">Random Words</option>
+        <option value="name_num">Name + Numbers</option>
+        <option value="nickname">Cool Nickname</option>
+        <option value="professional">Professional</option>
+      </select>
+    </div>
+
+    <div class="gen-result">
+      <div class="gen-label">Generated Email</div>
+      <div class="gen-row">
+        <div class="gen-val" id="genEmail">—</div>
+        <button class="gen-btn" onclick="copyText(genEmail.textContent,'Email')" title="Copy">📋</button>
+        <button class="gen-btn" onclick="genUsername()" title="Regenerate">🔄</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password Options</label>
+      <div class="pw-opts">
+        <button class="pw-opt-btn active" id="optLower" onclick="toggleOpt('optLower')">a-z<br>Lower</button>
+        <button class="pw-opt-btn active" id="optUpper" onclick="toggleOpt('optUpper')">A-Z<br>Upper</button>
+        <button class="pw-opt-btn active" id="optNums"  onclick="toggleOpt('optNums')">0-9<br>Numbers</button>
+        <button class="pw-opt-btn active" id="optSyms"  onclick="toggleOpt('optSyms')">!@#<br>Symbols</button>
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-labels">
+          <span>Length</span>
+          <span id="lenVal">16</span>
+          <span>32</span>
+        </div>
+        <input type="range" id="pwLen" min="8" max="32" value="16" oninput="lenVal.textContent=this.value;genPassword()">
+      </div>
+    </div>
+
+    <div class="gen-result">
+      <div class="gen-label">Generated Password</div>
+      <div class="gen-row">
+        <div class="gen-val" id="genPw" style="word-break:break-all">—</div>
+        <button class="gen-btn" onclick="copyText(genPw.textContent,'Password')" title="Copy">📋</button>
+        <button class="gen-btn" onclick="genPassword()" title="Regenerate">🔄</button>
+      </div>
+      <div class="strength-bar" id="strengthBar"></div>
+      <div class="strength-label">
+        <span>Mazbooti</span>
+        <span class="s-badge" id="strengthLabel">—</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Entry Name (save karne ke liye)</label>
+      <input class="form-input" id="genEntryName" placeholder="e.g. Backup Gmail, PUBG Account 2">
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" onclick="genAll()">🔄 Regenerate</button>
+      <button type="button" class="btn-save" style="background:var(--purple)" onclick="saveGenerated()">💾 Save to Vault</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="overlay center" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3>Delete Karein?</h3>
+    <p>Yeh entry hamesha ke liye delete ho jaye gi. Wapis nahi aa sakti.</p>
+    <div class="confirm-btns">
+      <button class="confirm-no" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-yes" id="confirmYes">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────
+const STORE_KEY = 'vaultpro_v1';
+let passwords = [];
+let activeCategory = 'All';
+let editId = null;
+let revealedIds = new Set();
+
+const CATEGORIES = ['All','Gmail','Crypto','Games','Social Media','Banking','Other'];
+
+// ─── PERSIST ─────────────────────────────────────────────────────
+function save() { localStorage.setItem(STORE_KEY, JSON.stringify(passwords)); }
+function load() {
+  try { passwords = JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch { passwords = []; }
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────
+function badgeClass(cat) {
+  return { Gmail:'badge-gmail',Crypto:'badge-crypto',Games:'badge-games','Social Media':'badge-social',Banking:'badge-banking' }[cat] || 'badge-other';
+}
+
+function renderCats() {
+  const el = document.getElementById('catTabs');
+  el.innerHTML = CATEGORIES.map(c =>
+    `<button class="cat-btn${c===activeCategory?' active':''}" onclick="setcat('${c}')">${c}</button>`
+  ).join('');
+}
+
+function setcat(c) { activeCategory = c; renderCats(); renderList(); }
+
+function renderList() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const wrap = document.getElementById('listWrap');
+  const filtered = passwords.filter(p => {
+    const matchCat = activeCategory === 'All' || p.category === activeCategory;
+    const matchQ = !q || [p.name,p.website,p.username,p.category].some(v => v && v.toLowerCase().includes(q));
+    return matchCat && matchQ;
+  });
+
+  if (!filtered.length) {
+    wrap.innerHTML = `<div class="empty">
+      <div class="empty-icon">🔒</div>
+      <h3>${passwords.length===0?'Vault khali hai':'Koi nahi mila'}</h3>
+      <p>${passwords.length===0?'Pehla password add karein':'Search ya filter badlein'}</p>
+      ${passwords.length===0?`<button class="btn btn-add" onclick="openForm()">＋ Add Karein</button>`:''}
+    </div>`;
+    return;
+  }
+
+  wrap.innerHTML = filtered.map(p => {
+    const revealed = revealedIds.has(p.id);
+    const bc = badgeClass(p.category);
+    const initial = (p.name||p.username||'?')[0].toUpperCase();
+    return `<div class="card" id="card-${p.id}">
+      <div class="card-top">
+        <div class="card-icon-wrap">
+          <div class="card-icon">${initial}</div>
+          <div class="card-info">
+            <div class="card-name">${esc(p.name)}</div>
+            <div class="card-meta">
+              <span class="card-website">${esc(p.website||'')}</span>
+              <span class="badge ${bc}">${esc(p.category)}</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="icon-btn" onclick="openForm('${p.id}')" title="Edit">✏️</button>
+          <button class="icon-btn" onclick="confirmDelete('${p.id}')" title="Delete">🗑️</button>
+        </div>
+      </div>
+      <div class="card-field">
+        <div class="field-label">Username / Email</div>
+        <div class="field-row">
+          <div class="field-val">${esc(p.username)}</div>
+          <div class="field-actions">
+            <button class="field-btn" onclick="copyText('${esc(p.username)}','Username')">📋</button>
+          </div>
+        </div>
+      </div>
+      <div class="card-field">
+        <div class="field-label">Password</div>
+        <div class="field-row">
+          <div class="field-val">${revealed ? esc(p.password) : '••••••••••••'}</div>
+          <div class="field-actions">
+            <button class="field-btn" onclick="toggleReveal('${p.id}')">${revealed?'🙈':'👁️'}</button>
+            <button class="field-btn" onclick="copyText('${esc(p.password)}','Password')">📋</button>
+          </div>
+        </div>
+      </div>
+      ${p.notes?`<div class="card-notes">📝 ${esc(p.notes)}</div>`:''}
+      <div class="card-date">${new Date(p.createdAt).toLocaleDateString('en-PK',{day:'2-digit',month:'short',year:'numeric'})}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleReveal(id) {
+  if (revealedIds.has(id)) revealedIds.delete(id); else revealedIds.add(id);
+  renderList();
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ─── FORM ────────────────────────────────────────────────────────
+function openForm(id) {
+  editId = id || null;
+  document.getElementById('formTitle').textContent = id ? '✏️ Edit Credential' : '🔑 New Credential';
+  ['errName','errUser','errPw'].forEach(e => document.getElementById(e).textContent='');
+  if (id) {
+    const p = passwords.find(x=>x.id===id);
+    if (!p) return;
+    document.getElementById('fName').value = p.name;
+    document.getElementById('fWebsite').value = p.website || '';
+    document.getElementById('fUser').value = p.username;
+    document.getElementById('fPw').value = p.password;
+    document.getElementById('fPw').type = 'password';
+    document.getElementById('fCat').value = p.category;
+    document.getElementById('fNotes').value = p.notes || '';
+  } else {
+    document.getElementById('credForm').reset();
+    document.getElementById('fPw').type = 'password';
+  }
+  document.getElementById('formOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('fName').focus(), 300);
+}
+
+function closeForm() { document.getElementById('formOverlay').classList.remove('open'); editId = null; }
+
+function saveForm(e) {
+  e.preventDefault();
+  const name = document.getElementById('fName').value.trim();
+  const user = document.getElementById('fUser').value.trim();
+  const pw   = document.getElementById('fPw').value.trim();
+  let ok = true;
+  if (!name) { document.getElementById('errName').textContent='Naam zaroor likhein'; ok=false; }
+  if (!user) { document.getElementById('errUser').textContent='Username zaroor likhein'; ok=false; }
+  if (!pw)   { document.getElementById('errPw').textContent='Password zaroor likhein'; ok=false; }
+  if (!ok) return;
+
+  const entry = {
+    id: editId || Date.now().toString(),
+    name,
+    website: document.getElementById('fWebsite').value.trim(),
+    username: user,
+    password: pw,
+    category: document.getElementById('fCat').value,
+    notes: document.getElementById('fNotes').value.trim(),
+    createdAt: editId ? (passwords.find(x=>x.id===editId)||{}).createdAt || Date.now() : Date.now(),
+  };
+
+  if (editId) {
+    passwords = passwords.map(p => p.id===editId ? entry : p);
+    toast('✅ Entry update ho gayi');
+  } else {
+    passwords.unshift(entry);
+    toast('✅ Naya entry save ho gaya');
+  }
+  save();
+  closeForm();
+  renderList();
+}
+
+function togglePw(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  inp.type = inp.type==='password' ? 'text' : 'password';
+  btn.textContent = inp.type==='password' ? '👁️' : '🙈';
+}
+
+// ─── DELETE ──────────────────────────────────────────────────────
+let pendingDeleteId = null;
+function confirmDelete(id) {
+  pendingDeleteId = id;
+  document.getElementById('confirmOverlay').classList.add('open');
+  document.getElementById('confirmYes').onclick = () => doDelete();
+}
+function doDelete() {
+  passwords = passwords.filter(p=>p.id!==pendingDeleteId);
+  save(); renderList(); closeConfirm();
+  toast('🗑️ Entry delete ho gayi');
+}
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('open');
+  pendingDeleteId = null;
+}
+
+// ─── EXPORT ──────────────────────────────────────────────────────
+function exportTxt() {
+  if (!passwords.length) { toast('⚠️ Vault khali hai'); return; }
+  const name = prompt('File ka naam likhein (bina extension ke):', 'meri_passwords');
+  if (!name) return;
+  let txt = '═══════════════════════════\n   VAULTPRO - PASSWORDS\n═══════════════════════════\n\n';
+  passwords.forEach((p,i) => {
+    txt += `[${i+1}] ${p.name}\n`;
+    txt += `   Website  : ${p.website||'—'}\n`;
+    txt += `   Category : ${p.category}\n`;
+    txt += `   Username : ${p.username}\n`;
+    txt += `   Password : ${p.password}\n`;
+    if (p.notes) txt += `   Notes    : ${p.notes}\n`;
+    txt += `   Saved    : ${new Date(p.createdAt).toLocaleDateString()}\n`;
+    txt += '───────────────────────────\n\n';
+  });
+  txt += `Total entries: ${passwords.length}\nExported: ${new Date().toLocaleString()}`;
+  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name.trim() + '.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('📄 File download ho gayi');
+}
+
+function exportPrint() {
+  if (!passwords.length) { toast('⚠️ Vault khali hai'); return; }
+  let html = `<html><head><meta charset="UTF-8"><title>VaultPro Export</title>
+  <style>body{font-family:Arial,sans-serif;font-size:12px;padding:20px;}
+  h1{margin-bottom:4px;font-size:18px;}
+  .sub{color:#666;margin-bottom:20px;font-size:11px;}
+  table{width:100%;border-collapse:collapse;}
+  th{background:#1e293b;color:white;padding:8px;text-align:left;font-size:11px;}
+  td{padding:7px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;word-break:break-word;}
+  tr:nth-child(even){background:#f8fafc;}
+  </style></head><body>
+  <h1>🔐 VaultPro - Password Export</h1>
+  <div class="sub">Exported: ${new Date().toLocaleString()} | Total: ${passwords.length} entries</div>
+  <table><thead><tr><th>#</th><th>Name</th><th>Website</th><th>Category</th><th>Username</th><th>Password</th><th>Notes</th></tr></thead><tbody>`;
+  passwords.forEach((p,i) => {
+    html += `<tr><td>${i+1}</td><td>${p.name}</td><td>${p.website||'—'}</td><td>${p.category}</td><td>${p.username}</td><td style="font-family:monospace">${p.password}</td><td>${p.notes||'—'}</td></tr>`;
+  });
+  html += '</tbody></table></body></html>';
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  w.print();
+}
+
+// ─── GENERATOR ───────────────────────────────────────────────────
+const PROVIDERS = [
+  {label:'Gmail',domain:'gmail.com',cat:'Gmail'},
+  {label:'Hotmail',domain:'hotmail.com',cat:'Other'},
+  {label:'Outlook',domain:'outlook.com',cat:'Other'},
+  {label:'Yahoo',domain:'yahoo.com',cat:'Other'},
+  {label:'iCloud',domain:'icloud.com',cat:'Other'},
+  {label:'ProtonMail',domain:'proton.me',cat:'Other'},
+  {label:'Yandex',domain:'yandex.com',cat:'Other'},
+];
+const WORDS = ['swift','thunder','ocean','falcon','storm','wolf','blaze','nova','pixel','cyber','dark','ghost','iron','prime','alpha','omega','ultra','hyper','comet','spark','frost','titan','raven','viper','blade','arrow','eagle','sonic','flash','turbo'];
+const NAMES = ['Ali','Usman','Hamza','Hassan','Bilal','Zain','Omar','Saad','Ayesha','Fatima','Sara','Noor','Sana','Ahmed','Tariq','Faisal','Kamran','Nasir','Imran','Asad'];
+const NICKS = ['Pro','King','Boss','Ninja','Dragon','Shadow','Legend','Elite','Sniper','Phoenix','Hunter','Fury','Savage','Blaster'];
+
+let selProvider = PROVIDERS[0];
+let genUsernameVal = '';
+let genPasswordVal = '';
+
+function rnd(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+function rndN(a,b) { return Math.floor(Math.random()*(b-a+1))+a; }
+
+function genUsernameStr(style) {
+  switch(style) {
+    case 'words': return `${rnd(WORDS)}_${rnd(WORDS)}${rndN(1,99)}`;
+    case 'name_num': return `${rnd(NAMES).toLowerCase()}${rndN(100,9999)}`;
+    case 'nickname': return `${rnd(WORDS)}${rnd(NICKS)}${rndN(1,99)}`;
+    case 'professional': return `${rnd(NAMES).toLowerCase()}.${rnd(WORDS)}${rndN(10,99)}`;
+    default: return `user${rndN(1000,9999)}`;
+  }
+}
+
+function genPwStr() {
+  const lo = document.getElementById('optLower').classList.contains('active');
+  const up = document.getElementById('optUpper').classList.contains('active');
+  const nu = document.getElementById('optNums').classList.contains('active');
+  const sy = document.getElementById('optSyms').classList.contains('active');
+  const len = parseInt(document.getElementById('pwLen').value);
+
+  const sets = [];
+  if (lo) sets.push('abcdefghijklmnopqrstuvwxyz');
+  if (up) sets.push('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+  if (nu) sets.push('0123456789');
+  if (sy) sets.push('!@#$%^&*()_+-=[]{}|;:,.?');
+
+  if (!sets.length) {
+    // fallback if all off
+    const fb = '0123456789';
+    return Array.from({length:len},()=>fb[Math.floor(Math.random()*fb.length)]).join('');
+  }
+
+  const allChars = sets.join('');
+  // guarantee one from each set
+  const guaranteed = sets.map(s => s[Math.floor(Math.random()*s.length)]);
+  const rest = Array.from({length: Math.max(0, len-guaranteed.length)}, () =>
+    allChars[Math.floor(Math.random()*allChars.length)]
+  );
+  return [...guaranteed, ...rest].sort(()=>Math.random()-0.5).slice(0,len).join('');
+}
+
+function calcStrength(pw) {
+  let s = 0;
+  if (pw.length>=8) s++;
+  if (pw.length>=12) s++;
+  if (pw.length>=16) s++;
+  if (/[A-Z]/.test(pw)) s++;
+  if (/[0-9]/.test(pw)) s++;
+  if (/[^a-zA-Z0-9]/.test(pw)) s++;
+  return s;
+}
+
+function updateStrengthUI() {
+  const pw = genPasswordVal;
+  const s = calcStrength(pw);
+  const bar = document.getElementById('strengthBar');
+  const lbl = document.getElementById('strengthLabel');
+  const colors = ['#ef4444','#ef4444','#f97316','#eab308','#22c55e','#22c55e','#22c55e'];
+  const labels = ['Bahut Kamzor','Kamzor','Theek Hai','Acha','Mazboot','Bahut Mazboot'];
+  const labelColors = ['#fca5a5','#fca5a5','#fdba74','#fde68a','#86efac','#86efac'];
+  const c = colors[Math.min(s,colors.length-1)];
+  bar.innerHTML = [1,2,3,4,5,6].map(i =>
+    `<div class="strength-seg" style="background:${i<=s?c:''}"></div>`
+  ).join('');
+  lbl.textContent = labels[Math.min(s,labels.length-1)];
+  lbl.style.background = labelColors[Math.min(s,labelColors.length-1)] + '22';
+  lbl.style.color = labelColors[Math.min(s,labelColors.length-1)];
+  lbl.style.padding = '1px 6px';
+  lbl.style.borderRadius = '4px';
+}
+
+function genUsername() {
+  genUsernameVal = genUsernameStr(document.getElementById('genStyle').value);
+  document.getElementById('genEmail').textContent = genUsernameVal + '@' + selProvider.domain;
+}
+
+function genPassword() {
+  genPasswordVal = genPwStr();
+  document.getElementById('genPw').textContent = genPasswordVal;
+  updateStrengthUI();
+}
+
+function genAll() { genUsername(); genPassword(); }
+
+function toggleOpt(id) {
+  document.getElementById(id).classList.toggle('active');
+  genPassword();
+}
+
+function renderProviders() {
+  document.getElementById('providerGrid').innerHTML = PROVIDERS.map(p =>
+    `<button class="provider-btn${p.domain===selProvider.domain?' active':''}" onclick="selProv('${p.domain}')">${p.label}</button>`
+  ).join('');
+}
+
+function selProv(domain) {
+  selProvider = PROVIDERS.find(p=>p.domain===domain);
+  renderProviders();
+  genUsername();
+}
+
+function openGen() {
+  renderProviders();
+  genAll();
+  document.getElementById('genEntryName').value = '';
+  document.getElementById('genOverlay').classList.add('open');
+}
+
+function saveGenerated() {
+  const entryName = document.getElementById('genEntryName').value.trim();
+  if (!entryName) { toast('⚠️ Entry ka naam likhein'); document.getElementById('genEntryName').focus(); return; }
+  const entry = {
+    id: Date.now().toString(),
+    name: entryName,
+    website: selProvider.domain,
+    username: document.getElementById('genEmail').textContent,
+    password: genPasswordVal,
+    category: selProvider.cat,
+    notes: `Generated - ${selProvider.label}`,
+    createdAt: Date.now(),
+  };
+  passwords.unshift(entry);
+  save(); renderList();
+  document.getElementById('genOverlay').classList.remove('open');
+  toast('✅ Generated entry save ho gayi');
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────
+function overlayClick(e, id) {
+  if (e.target.id === id) document.getElementById(id).classList.remove('open');
+}
+
+function copyText(text, label) {
+  if (!text || text==='—') return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(()=>toast(`📋 ${label} copy ho gaya`));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta); toast(`📋 ${label} copy ho gaya`);
+  }
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2200);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────
+load();
+renderCats();
+renderList();
+</script>
+</body>
+</html>
